@@ -1,18 +1,4 @@
-// **Esercizio
-
-// **Milestone 2**
-// Aggiungiamo in pagina un semplice form con un campo input in cui inserire il titolo di un nuovo articolo del blog. Al submit del form, mostrare la lista degli articoli aggiornati.
-// **BONUS**
-// 1. Aggiungere la possibilità di cancellare ciascun articolo utilizzando un'icona.
-// 2. Implementare la funzionalità di modifica del titolo di un post.
-// 3. Fare refacotring, estrapolando qualche componente
-// Buon lavoro!
-
-
-
-
 import { useState } from 'react'
-
 
 const blogPosts = [
   {
@@ -42,59 +28,109 @@ const blogPosts = [
   }
 ];
 
+
+
 function App() {
-  const [newArticle, setNewArticle] = useState("")
-  const [newBlogPosts, setNewBlogPosts] = useState(blogPosts)
- 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const [inputCorrente, setInputCorrente] = useState("");
+  const [postList, setPostList] = useState(blogPosts);
+  const [postInModifica, setPostInModifica] = useState(null);
+
+
+  //funzioni
+  const aggiungiTitolo = () => {
     const newPost = {
-        id: Date.now(),
-        titolo: newArticle,
-        contenuto: ""
+      id: Date.now(),
+      titolo: inputCorrente,
+      contenuto: "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laborum exercitationem laudantium amet nisi libero "
     }
-    const copyArr = [newPost, ...newBlogPosts]
-    setNewBlogPosts(copyArr)
-    setNewArticle("")
+
+    setPostList([...postList, newPost])
+    setInputCorrente("")
   }
 
-  const handleDelete = (idToDelete) => {
-    const filteredPosts = newBlogPosts.filter(post => post.id !== idToDelete)
-    setNewBlogPosts(filteredPosts)
+  const eliminaPost = (postDaEliminare) => {
+
+    const newArr = postList.filter(curPost => curPost.id !== postDaEliminare.id)
+
+    setPostList(newArr)
+
   }
 
+  const salva = () => {
+    const listModificata = postList.map(curPost => {
+      if (curPost.id === postInModifica) {
+        return { ...curPost, titolo: inputCorrente }
+      } return curPost
+    })
+
+    setPostList(listModificata);
+    setInputCorrente("")
+    setPostInModifica(null)
+
+
+  }
 
   return (
     <>
-      <div className="listGroup container">
-        <form action="" onSubmit={handleSubmit}>
-          <input
-            type="text"
-            value={newArticle}
-            onChange={(event) => setNewArticle(event.target.value)}
-            autoComplete='off'
-          />
-          <button>Aggiungi Articolo</button>
-        </form>
-        
+      <h1>Benvenuti nel Blog</h1>
+      <div className="container">
+        <input
+          type="text"
+          value={inputCorrente}
+          onChange={(e) => setInputCorrente(e.target.value)} />
+
+        <button onClick={aggiungiTitolo}>aggiungi Articolo</button>
+      </div>
+
+
+
+      <div className="container">
+
         <ul>
-          {newBlogPosts.map(singlePost => {
-            return (
-              <li key={singlePost.id}>
-                {singlePost.titolo}
-                <span>
-                  <button onClick={() => handleDelete(singlePost.id)}>
-                    <i className="fa-solid fa-trash-can"></i>
-                  </button>
-                </span>
-              </li>
-            )
+          {postList.map(curPost => {
+            if (curPost.id !== postInModifica) {
+              return (
+                <li key={curPost.id}>{curPost.titolo}
+
+                  <div className='wrapper'>
+
+                    <button onClick={() => eliminaPost(curPost)}><i className="fa-solid fa-trash-can trash"></i>
+                    </button>
+
+                    <button onClick={() => { setPostInModifica(curPost.id); setInputCorrente(curPost.titolo) }}>
+                      <i className="fa-solid fa-pen-to-square edit"></i>
+                    </button>
+
+
+                  </div>
+
+
+                </li>
+              )
+            } else {
+              return (
+                <>
+                 <input type="text" value={inputCorrente} onChange={(e) => setInputCorrente(e.target.value)} />
+                  <button onClick={() => salva()}>salva modifica</button>
+                </>
+                 
+                  
+                
+
+              )
+            }
+
+
           })}
         </ul>
+
+
       </div>
+
+
+
     </>
   )
 }
-
 
 export default App
